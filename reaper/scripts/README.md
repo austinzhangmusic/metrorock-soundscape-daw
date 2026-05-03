@@ -11,7 +11,7 @@ ReaScripts triggered by piezo taps via MIDI. The 8 sensors map to:
 | 4 | 64 | `metrorock_fade_track_5.lua` — fade track 5 up while ducking track 6 (-10 dB) |
 | 5 | 65 | `metrorock_mute_tracks_1_5.lua` — panic mute toggle on tracks 1-5 |
 | 6 | 66 | `metrorock_toggle_eq_master.lua` — bypass/enable ReaEQ on master bus |
-| 7 | 67 | `metrorock_toggle_autotune_track_7.lua` — bypass/enable Graillon on track 7 |
+| 7 | 67 | `metrorock_toggle_autotune_track_7.lua` — bypass/enable Spoton on track 7 |
 
 ## Fade scripts (tracks 1-5)
 
@@ -52,8 +52,10 @@ Edit per file:
 - `TOP_DB` — peak volume (default 0.0; can go up to ~+12)
 - `BOTTOM_DB` — floor volume (default -150.0, effectively silent)
 
-The fade lerps in dB space, so the perceived volume change is roughly linear
-over time rather than front-loaded.
+Lerp is in linear amplitude space (matching how DAW automation typically
+interpolates volume), so fade-up is audible from the start of the fade
+rather than waiting until the last fraction of a second to enter the
+audible range.
 
 ## Macro scripts (sensors 5-7)
 
@@ -61,7 +63,7 @@ over time rather than front-loaded.
 are currently unmuted, mutes all five; if all are muted, unmutes all five.
 Operates on the mute flag directly, independent of fader position, so it
 works as a panic kill regardless of where the per-track fades have left
-each volume. Also force-disables ReaEQ on master and Graillon on track 7
+each volume. Also force-disables ReaEQ on master and Spoton on track 7
 if they're currently enabled — this is one-way (only disables; never
 re-enables), so an "un-panic" tap restores the track mutes but leaves the
 FX off until you re-enable them via sensors 6 / 7.
@@ -72,7 +74,7 @@ If you have multiple ReaEQ instances, only the first is touched. Substring
 match, so `ReaEQ`, `ReaEQ (Cockos)`, and `ReaEQ-Bandsplit` all qualify.
 
 **`metrorock_toggle_autotune_track_7.lua`** — Same pattern, but on track 7
-(0-based index 6) looking for the first FX whose name contains `Graillon`.
+(0-based index 6) looking for the first FX whose name contains `Spoton`.
 Adjust `TRACK_IDX` if your mic channel ends up on a different track, or
 `FX_NAME_MATCH` if you use a different autotune plugin.
 

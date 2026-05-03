@@ -1,7 +1,7 @@
--- Toggle bypass on the first Graillon FX on track 7 (mic channel).
+-- Toggle bypass on the first Spoton FX on track 7 (mic channel).
 
 local TRACK_IDX = 6  -- 0-based, so track 7
-local FX_NAME_MATCH = "Graillon"
+local FX_NAME_MATCH = "Spoton"
 
 local track = reaper.GetTrack(0, TRACK_IDX)
 if not track then return end

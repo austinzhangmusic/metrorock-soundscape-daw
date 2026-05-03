@@ -2,6 +2,7 @@
 -- in opposition (0 dB <-> -10 dB) over 2 seconds. Both tracks animate
 -- together; direction is decided by track 5's current position.
 -- Re-invoking mid-fade reverses both tracks immediately.
+-- Lerps in linear amplitude space so the fade-in is audible from the start.
 
 local LEAD_TRACK_IDX = 4    -- track 5
 local DUCK_TRACK_IDX = 5    -- track 6
@@ -30,12 +31,15 @@ if not lead or not duck then return end
 reaper.SetMediaTrackInfo_Value(lead, "B_MUTE", 0)
 reaper.SetMediaTrackInfo_Value(duck, "B_MUTE", 0)
 
-local lead_cur_db = linear_to_db(reaper.GetMediaTrackInfo_Value(lead, "D_VOL"))
-local duck_cur_db = linear_to_db(reaper.GetMediaTrackInfo_Value(duck, "D_VOL"))
+local lead_cur_amp = reaper.GetMediaTrackInfo_Value(lead, "D_VOL")
+local duck_cur_amp = reaper.GetMediaTrackInfo_Value(duck, "D_VOL")
+local lead_cur_db = linear_to_db(lead_cur_amp)
 
 local going_up = lead_cur_db <= (LEAD_TOP_DB + LEAD_BOTTOM_DB) / 2
-local lead_target = going_up and LEAD_TOP_DB or LEAD_BOTTOM_DB
-local duck_target = going_up and DUCK_BOTTOM_DB or DUCK_TOP_DB
+local lead_target_db = going_up and LEAD_TOP_DB or LEAD_BOTTOM_DB
+local duck_target_db = going_up and DUCK_BOTTOM_DB or DUCK_TOP_DB
+local lead_target_amp = db_to_linear(lead_target_db)
+local duck_target_amp = db_to_linear(duck_target_db)
 
 local start_time = reaper.time_precise()
 
@@ -47,14 +51,14 @@ local function tick()
     local now = reaper.time_precise()
     local t = (now - start_time) / FADE_TIME
     if t >= 1 then
-        reaper.SetMediaTrackInfo_Value(lead, "D_VOL", db_to_linear(lead_target))
-        reaper.SetMediaTrackInfo_Value(duck, "D_VOL", db_to_linear(duck_target))
+        reaper.SetMediaTrackInfo_Value(lead, "D_VOL", lead_target_amp)
+        reaper.SetMediaTrackInfo_Value(duck, "D_VOL", duck_target_amp)
         return
     end
-    local lead_db_now = lead_cur_db + (lead_target - lead_cur_db) * t
-    local duck_db_now = duck_cur_db + (duck_target - duck_cur_db) * t
-    reaper.SetMediaTrackInfo_Value(lead, "D_VOL", db_to_linear(lead_db_now))
-    reaper.SetMediaTrackInfo_Value(duck, "D_VOL", db_to_linear(duck_db_now))
+    local lead_amp_now = lead_cur_amp + (lead_target_amp - lead_cur_amp) * t
+    local duck_amp_now = duck_cur_amp + (duck_target_amp - duck_cur_amp) * t
+    reaper.SetMediaTrackInfo_Value(lead, "D_VOL", lead_amp_now)
+    reaper.SetMediaTrackInfo_Value(duck, "D_VOL", duck_amp_now)
     reaper.defer(tick)
 end
 
