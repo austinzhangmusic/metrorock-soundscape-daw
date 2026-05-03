@@ -4,13 +4,17 @@ import time
 THRESHOLD = 100
 COOLDOWN = 0.5
 NUM_SENSORS = 20
-ACTIVE_SENSORS = [0, 1, 2, 3]
+ACTIVE_SENSORS = [0, 1, 2, 3, 4, 5, 6, 7]
 
 SENSOR_STEMS = {
     0: 'stem_vocals',
     1: 'stem_bass',
     2: 'stem_drums',
     3: 'stem_other',
+    4: 'pad_4',
+    5: 'pad_5',
+    6: 'pad_6',
+    7: 'pad_7',
 }
 
 PALETTES = [
