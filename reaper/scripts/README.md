@@ -11,7 +11,7 @@ ReaScripts triggered by piezo taps via MIDI. The 8 sensors map to:
 | 4 | 64 | `metrorock_fade_track_5.lua` — fade track 5 up while ducking track 6 (-10 dB) |
 | 5 | 65 | `metrorock_mute_tracks_1_5.lua` — panic mute toggle on tracks 1-5 |
 | 6 | 66 | `metrorock_toggle_eq_master.lua` — bypass/enable ReaEQ on master bus |
-| 7 | 67 | `metrorock_toggle_autotune_track_7.lua` — bypass/enable Spoton on track 7 |
+| 7 | 67 | `metrorock_toggle_autotune_track_7.lua` — bypass/enable Spoton on tracks 7 and 8 |
 
 ## Fade scripts (tracks 1-5)
 
@@ -63,20 +63,23 @@ audible range.
 are currently unmuted, mutes all five; if all are muted, unmutes all five.
 Operates on the mute flag directly, independent of fader position, so it
 works as a panic kill regardless of where the per-track fades have left
-each volume. Also force-disables ReaEQ on master and Spoton on track 7
-if they're currently enabled — this is one-way (only disables; never
-re-enables), so an "un-panic" tap restores the track mutes but leaves the
-FX off until you re-enable them via sensors 6 / 7.
+each volume. Also force-disables ReaEQ on master and Spoton on tracks 7
+and 8 if they're currently enabled — this is one-way (only disables;
+never re-enables), so an "un-panic" tap restores the track mutes but
+leaves the FX off until you re-enable them via sensors 6 / 7.
 
 **`metrorock_toggle_eq_master.lua`** — Walks the master bus FX chain looking
 for the first FX whose name contains `ReaEQ` and toggles its bypass state.
 If you have multiple ReaEQ instances, only the first is touched. Substring
 match, so `ReaEQ`, `ReaEQ (Cockos)`, and `ReaEQ-Bandsplit` all qualify.
 
-**`metrorock_toggle_autotune_track_7.lua`** — Same pattern, but on track 7
-(0-based index 6) looking for the first FX whose name contains `Spoton`.
-Adjust `TRACK_IDX` if your mic channel ends up on a different track, or
-`FX_NAME_MATCH` if you use a different autotune plugin.
+**`metrorock_toggle_autotune_track_7.lua`** — Walks tracks 7 and 8 looking
+for the first FX on each whose name contains `Spoton`. Treats the pair as
+a unit: if either is enabled, disables both; if both are disabled, enables
+both — keeps the two mic channels in sync regardless of state drift.
+Adjust `TRACK_INDICES` if the mic channels move, or `FX_NAME_MATCH` if
+you use a different autotune plugin. (Filename still says `track_7` for
+binding stability — content is what matters.)
 
 For all three, FX-name matching is case-sensitive and uses Lua's
 `string.find` with the plain-text flag, so no regex escaping is needed.

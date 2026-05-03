@@ -2,12 +2,12 @@
 -- If any of them is currently unmuted, mute all; otherwise unmute all.
 -- Acts as a panic kill regardless of fader position.
 --
--- Also force-disables ReaEQ on the master bus and Spoton on track 7 if
--- they're currently enabled. Disable is one-way here (re-enable lives on
+-- Also force-disables ReaEQ on the master bus and Spoton on tracks 7 and 8
+-- if they're currently enabled. Disable is one-way here (re-enable lives on
 -- sensors 6 and 7), so an "un-panic" tap restores the mutes but not the FX.
 
 local TRACK_INDICES = {0, 1, 2, 3, 4}
-local AUTOTUNE_TRACK_IDX = 6  -- track 7
+local AUTOTUNE_TRACK_INDICES = {6, 7}  -- tracks 7 and 8
 
 local any_unmuted = false
 for _, idx in ipairs(TRACK_INDICES) do
@@ -39,4 +39,6 @@ local function disable_fx_by_name(track, match)
 end
 
 disable_fx_by_name(reaper.GetMasterTrack(0), "ReaEQ")
-disable_fx_by_name(reaper.GetTrack(0, AUTOTUNE_TRACK_IDX), "Spoton")
+for _, idx in ipairs(AUTOTUNE_TRACK_INDICES) do
+    disable_fx_by_name(reaper.GetTrack(0, idx), "Spoton")
+end
